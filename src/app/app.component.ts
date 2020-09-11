@@ -4,9 +4,11 @@ import {
   FormControl,
   FormBuilder,
   Validators,
+  FormArray,
 } from '@angular/forms';
 import { forbiddenNameValidator } from './shared/user-name.validator';
 import { PasswordValidator } from './shared/password.validator';
+import { RegistrationService } from './registration.service';
 
 @Component({
   selector: 'app-root',
@@ -25,8 +27,18 @@ export class AppComponent implements OnInit {
   get email() {
     return this.registrationForm.get('email');
   }
+  get alternateEmails() {
+    return this.registrationForm.get('alternateEmails') as FormArray;
+  }
 
-  constructor(private fb: FormBuilder) {}
+  addAlternateEmail() {
+    this.alternateEmails.push(this.fb.control(''));
+  }
+
+  constructor(
+    private fb: FormBuilder,
+    private _registrationService: RegistrationService
+  ) {}
 
   ngOnInit() {
     this.registrationForm = this.fb.group(
@@ -48,6 +60,7 @@ export class AppComponent implements OnInit {
           state: [''],
           postalCode: [''],
         }),
+        alternateEmails: this.fb.array([]),
       },
       { validator: PasswordValidator }
     );
@@ -93,5 +106,16 @@ export class AppComponent implements OnInit {
     //   password: 'test',
     //   confirmPassword: 'test',
     // });
+  }
+  submitted = false;
+  errorMsg = '';
+
+  onSubmit() {
+    console.log(this.registrationForm.value);
+    this._registrationService.register(this.registrationForm.value).subscribe(
+      (response) => console.log('Success', response),
+      (error) => (this.errorMsg = error.statusText)
+    );
+    this.submitted = true;
   }
 }

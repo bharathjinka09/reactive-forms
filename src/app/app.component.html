@@ -1,7 +1,17 @@
 <div class="container-fluid">
   <h2 class="text-center">Registration Form</h2>
-  <form [formGroup]="registrationForm">
-    {{ registrationForm.value | json }}
+
+  <div class="alert alert-danger" *ngIf="errorMsg">Server Error. Please try again !</div>
+
+  <div class="alert alert-success" *ngIf="submitted && !errorMsg">
+    Thank you. Registered Successfully !
+  </div>
+  <form
+    *ngIf="!submitted"
+    [formGroup]="registrationForm"
+    (ngSubmit)="onSubmit()"
+  >
+    <!-- {{ registrationForm.value | json }} -->
 
     <div class="form-group">
       <label>Username</label>
@@ -35,6 +45,13 @@
 
     <div class="form-group">
       <label>Email</label>
+      <button
+        type="button"
+        class="btn btn-secondary btn-sm m-2"
+        (click)="addAlternateEmail()"
+      >
+        Add Alternate Email
+      </button>
       <input
         [class.is-invalid]="email.invalid && email.touched"
         type="text"
@@ -47,6 +64,12 @@
       >
         Email is required
       </small>
+      <div
+        formArrayName="alternateEmails"
+        *ngFor="let email of alternateEmails.controls; let i = index"
+      >
+        <input type="text" class="form-control my-1" [formControlName]="i" />
+      </div>
     </div>
 
     <div class="form-check mb-3">
@@ -91,14 +114,20 @@
       </div>
     </div>
 
-    <button class="btn btn-primary" type="submit">Register</button>
     <button
+      [disabled]="!registrationForm.valid"
+      class="btn btn-primary"
+      type="submit"
+    >
+      Register
+    </button>
+    <!-- <button
       (click)="loadApiData()"
       class="btn btn-secondary ml-2"
       type="button"
     >
       Load API Data
-    </button>
+    </button> -->
   </form>
   <br />
   <br />
